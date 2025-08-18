@@ -124,24 +124,25 @@ Modified for integration with WordPress Gutenberg
   height: 30px;
 }
 
+/* Note: 'important' enforced because some theme creators manipulate images. */
 .cyb-marzipano .header .action-left > div > img.on,
 .cyb-marzipano .header .action-right > div > img.on {
-  display: none;
+  display: none !important;
 }
 
-.cyb-marzipano .header .action-left > div.enabled > img.off,
-.cyb-marzipano .header .action-right > div.enabled > img.off {
-  display: block;
+.cyb-marzipano .header .action-left > div > img.off,
+.cyb-marzipano .header .action-right > div > img.off {
+  display: block !important;
 }
 
 .cyb-marzipano .header .action-left > div.enabled > img.on,
 .cyb-marzipano .header .action-right > div.enabled > img.on {
-  display: block;
+  display: block !important;
 }
 
 .cyb-marzipano .header .action-left > div.enabled > img.off,
 .cyb-marzipano .header .action-right > div.enabled > img.off {
-  display: none;
+  display: none !important;
 }
 
 /* Marzipano */
