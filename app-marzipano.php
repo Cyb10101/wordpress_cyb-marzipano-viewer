@@ -9,6 +9,7 @@ Author URI: https://cyb10101.de/
 License: GPLv2 or later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
+if (!defined('ABSPATH')) {exit();} // Exit if accessed directly
 
 class CybMarzipano {
     public function initialize() {
