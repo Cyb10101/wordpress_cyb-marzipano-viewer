@@ -4,24 +4,33 @@ Based on Marzipano's example viewer (style.css)
 Modified for integration with WordPress Gutenberg
 */
 
-class CybMarzipano {
+class CybMarzipanoViewer {
   initialize() {
-    const instance = this;
+    const seen = new WeakSet();
+    const runOnce = (element) => {
+      if (element && !seen.has(element)) {
+        seen.add(element);
+        this.run(element);
+      }
+    };
+
+    // Element rendered with PHP
+    document.querySelectorAll('.cyb-marzipano-viewer').forEach(runOnce);
+
+    // Element added with JavaScript
     const observer = new MutationObserver(mutations => {
-      mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-        if (node.nodeType === 1) {
-          if (node.matches && node.matches('.cyb-marzipano')) {
-            instance.run(node);
-          } else {
-            const marzipanoChild = node.querySelector && node.querySelector('.cyb-marzipano');
-            if (marzipanoChild) {
-              instance.run(marzipanoChild);
-            }
+      for (const mutation of mutations) {
+        for (const node of mutation.addedNodes) {
+          if (node.nodeType !== 1) {
+            continue;
+          }
+          if (node.matches && node.matches('.cyb-marzipano-viewer')) {
+            runOnce(node);
+          } else if (node.querySelector && node.querySelector('.cyb-marzipano-viewer')) {
+            runOnce(node.querySelector('.cyb-marzipano-viewer'));
           }
         }
-        });
-      });
+      }
     });
     observer.observe(document.body, {childList: true, subtree: true});
   }
@@ -30,17 +39,67 @@ class CybMarzipano {
     this.run(document.getElementById(containerId), config);
   }
 
-  run(container, config = null) {
-    const instance = this;
-    if (container.dataset.initialized) {return;} else {container.dataset.initialized = 1;}
+  // Fetch configuration
+  async fetchConfig(url) {
+    url = (url || '').trim();
+    if (!url) {
+      return null;
+    }
+    try {
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          Accept: 'application/json'
+        }
+      });
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}`);
+      }
+      const data = await response.json();
+      return data ?? null;
+    } catch (exception) {
+      console.error('Marzipano fetchConfig failed', exception);
+      return null;
+    }
+  };
 
-    if (config) {
-      this.config = config
-    } else {
-      this.config = JSON.parse(container.dataset.config);
+  async run(container, config = null) {
+    if (container.dataset.initialized) {
+      return;
     }
 
-    var Marzipano = window.Marzipano;
+    // Fetch configuration
+    if (!config && container.dataset.src) {
+      config = await this.fetchConfig(container.dataset.src);
+    }
+    if (!config) {
+      return;
+    }
+    container.dataset.initialized = 1;
+
+    // Override config with block editor attributes
+    if (container.dataset.override) {
+      try {
+        const override = JSON.parse(container.dataset.override);
+        config = {...config, ...override}
+      } catch (exception) {
+        console.error(exception);
+      }
+    }
+
+    // Detect base path
+    if (container.dataset.src && (!config.basePath || config.basePath === '')) {
+      config.basePath = container.dataset.src.replace(/\/[^\/]*$/, '');
+    }
+
+    this.createMarzipano(container, config);
+  }
+
+  createMarzipano(container, config) {
+    const instance = this;
+    this.config = config;
+
+    let Marzipano = window.Marzipano;
     this.currentSceneIndex = 0;
 
     const panoElement = this.createPanorama(container);
@@ -93,9 +152,11 @@ class CybMarzipano {
     });
 
     // Set handler for scene list toggle.
-    this.sceneListToggleElement.addEventListener('click', () => {
-      instance.toggleSceneList();
-    });
+    if (config.scenes.length > 1) {
+      this.sceneListToggleElement.addEventListener('click', () => {
+        instance.toggleSceneList();
+      });
+    }
 
     // Start with the scene list open on desktop.
     if (!container.classList.contains('mobile')) {
@@ -103,7 +164,7 @@ class CybMarzipano {
     }
 
     // Set handler for scene switch.
-    this.scenes.forEach(function(scene) {
+    this.scenes.forEach((scene) => {
       var el = instance.sceneListElement.querySelector('.scene[data-id="' + scene.data.id + '"]');
       el.addEventListener('click', () => {
         instance.switchScene(scene);
@@ -511,18 +572,24 @@ class CybMarzipano {
   }
 
   showSceneList() {
-    this.sceneListElement.classList.add('enabled');
-    this.sceneListToggleElement.classList.add('enabled');
+    if (this.config.scenes.length > 1) {
+      this.sceneListElement.classList.add('enabled');
+      this.sceneListToggleElement.classList.add('enabled');
+    }
   }
 
   hideSceneList() {
-    this.sceneListElement.classList.remove('enabled');
-    this.sceneListToggleElement.classList.remove('enabled');
+    if (this.config.scenes.length > 1) {
+      this.sceneListElement.classList.remove('enabled');
+      this.sceneListToggleElement.classList.remove('enabled');
+    }
   }
 
   toggleSceneList() {
-    this.sceneListElement.classList.toggle('enabled');
-    this.sceneListToggleElement.classList.toggle('enabled');
+    if (this.config.scenes.length > 1) {
+      this.sceneListElement.classList.toggle('enabled');
+      this.sceneListToggleElement.classList.toggle('enabled');
+    }
   }
 
   startAutorotate() {
@@ -601,5 +668,5 @@ class CybMarzipano {
 }
 
 document.addEventListener('DOMContentLoaded', () => {
-  (new CybMarzipano).initialize();
+  (new CybMarzipanoViewer).initialize();
 });

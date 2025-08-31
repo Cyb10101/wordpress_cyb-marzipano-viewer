@@ -14,6 +14,11 @@ Easily embed interactive 360° panorama images converted into multi-resolution t
 
 Perfect for virtual tours, exhibitions or immersive media content.
 
+## Links
+
+* [Plugin on WordPress](https://wordpress.org/plugins/cyb-marzipano-viewer)
+* [Source Code](https://github.com/Cyb10101/wordpress_cyb-marzipano-viewer)
+
 ## Note
 
 The goal of the project was to implement a panorama in a relatively simple way.
@@ -26,11 +31,13 @@ Marzipano is displayed in the backend, but is almost impossible to use there.
 
 1. Generate panorama with the [Marzipano Tool](https://www.marzipano.net/tool/)
 2. Download the archive and extract the files
-3. Move `app-files/tiles` and `app-files/data.js` to `/panorama/marzipano/project-name/` (for example)
-4. Add the **Marzipano Viewer** WordPress block in the Gutenberg editor
-5. Import `data.js` via "Browse/Choose File" button or paste JSON code directly into the editor (var APP_DATA = {...};)
-6. In the sidebar, set the base path (basePath) to `/panorama/marzipano/project-name/`
-7. In the toolbar, switch to preview view
+3. Copy `app-files/tiles/*` to `/panorama/marzipano/project/` (for example)
+4. Copy `app-files/data.js` to `/panorama/marzipano/project/`
+5. Rename `data.js` to `config.json`, then edit it:
+   1. Remove at begin `var APP_DATA = `
+   2. Remove at end `;`
+6. Add the **Marzipano Viewer** WordPress block in the Gutenberg editor
+7. Embed `/panorama/marzipano/project/config.json`
 
 ## Credits
 
