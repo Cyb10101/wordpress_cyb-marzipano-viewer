@@ -11,7 +11,7 @@ License URI: https://www.gnu.org/licenses/gpl-2.0.html
 */
 if (!defined('ABSPATH')) {exit();} // Exit if accessed directly
 
-class CybMarzipano {
+class CybMarzipanoViewer {
     public function initialize() {
         add_action('init', [$this, 'wpInit']);
     }
@@ -22,11 +22,11 @@ class CybMarzipano {
         wp_enqueue_script('marzipano', plugins_url('vendor/marzipano.js', __FILE__), [], $versionMarzipano, true);
         wp_enqueue_script('marzipano-DeviceOrientation', plugins_url('vendor/DeviceOrientationControlMethod.js', __FILE__), ['marzipano'], $versionMarzipano, true);
 
-        wp_enqueue_style('cyb-marzipano', plugins_url('marzipano.css', __FILE__), [],
-            filemtime(plugin_dir_path(__FILE__) . 'marzipano.css')
+        wp_enqueue_style('cyb-marzipano', plugins_url('marzipano-viewer.css', __FILE__), [],
+            filemtime(plugin_dir_path(__FILE__) . 'marzipano-viewer.css')
         );
-        wp_enqueue_script('cyb-marzipano', plugins_url('marzipano.js', __FILE__), ['marzipano', 'marzipano-DeviceOrientation'],
-            filemtime(plugin_dir_path(__FILE__) . 'marzipano.js'), true
+        wp_enqueue_script('cyb-marzipano', plugins_url('marzipano-viewer.js', __FILE__), ['marzipano', 'marzipano-DeviceOrientation'],
+            filemtime(plugin_dir_path(__FILE__) . 'marzipano-viewer.js'), true
         );
         wp_localize_script('cyb-marzipano', 'cybLocalize', [
             'pluginsUrl' => plugins_url('', __FILE__),
@@ -76,5 +76,5 @@ class CybMarzipano {
     }
 }
 
-$cybMarzipano = new CybMarzipano();
-$cybMarzipano->initialize();
+$cybMarzipanoViewer = new CybMarzipanoViewer();
+$cybMarzipanoViewer->initialize();
